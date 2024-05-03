@@ -1,0 +1,20 @@
+{
+  "name": "sourcebot",
+  "module": "bot.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "bun src/bot.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "pino": "^9.0.0",
+    "pino-pretty": "^11.0.0",
+    "prisma": "^5.13.0"
+  }
+}
