@@ -1,4 +1,5 @@
 # SourceBOT
+A modular discord bot with the goal of being easy to understand and customize.
 
 To install dependencies:
 
