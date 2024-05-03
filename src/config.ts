@@ -7,15 +7,15 @@ if (!DISCORD_TOKEN || !BOT_OWNER_ID || !LOG_CHANNEL_ID) {
 }
 
 interface Env {
-    DISCORD_TOKEN: string;
-    BOT_OWNER_ID: string;
-    LOG_CHANNEL_ID: string;
+  DISCORD_TOKEN: string;
+  BOT_OWNER_ID: string;
+  LOG_CHANNEL_ID: string;
 }
 
 const Config: Env = {
-    DISCORD_TOKEN,
-    BOT_OWNER_ID,
-    LOG_CHANNEL_ID,
+  DISCORD_TOKEN,
+  BOT_OWNER_ID,
+  LOG_CHANNEL_ID,
 };
 
 export default Config;
