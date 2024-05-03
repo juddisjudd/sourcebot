@@ -1,6 +1,7 @@
 import type { Command } from '../interfaces/command';
 import fs from 'fs';
 import path from 'path';
+import logger from '../utils/logger';
 
 const commands = new Map<string, Command>();
 
@@ -18,7 +19,7 @@ function loadCommands(directory: string): void {
       const command: Command = commandModule.default;
       commands.set(command.data.name, command);
 
-      console.log(`Loaded command ${command.data.name}`);
+      logger.info(`Loaded command ${command.data.name}`);
     }
   }
 }
