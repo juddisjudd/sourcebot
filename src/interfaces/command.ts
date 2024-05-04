@@ -1,5 +1,5 @@
 import type {
-  CommandInteraction,
+  ChatInputCommandInteraction,
   AutocompleteInteraction,
   SlashCommandBuilder,
   SlashCommandSubcommandsOnlyBuilder,
@@ -7,7 +7,7 @@ import type {
 
 export interface Command {
   data: Omit<SlashCommandBuilder, 'addSubcommandGroup' | 'addSubcommand'> | SlashCommandSubcommandsOnlyBuilder;
-  run?: (interaction: CommandInteraction) => Promise<void>;
+  run?: (interaction: ChatInputCommandInteraction) => Promise<void>;
   autocomplete?: (interaction: AutocompleteInteraction) => Promise<void>;
   permissions?: string | string[];
   cooldown?: number;
