@@ -2,8 +2,22 @@ import { Client, REST, Routes, ActivityType } from 'discord.js';
 import logger from '../utils/logger';
 import { logToChannel } from '../utils/logToChannel';
 import commands from '../handlers/commandHandler';
-import Config from '../config';
+import config from '../config';
 import { setupContinuousCheck, postUpdatesToChannel, fetchDataFromAPI } from '../services/tzone-service';
+
+async function registerCommands(client: Client) {
+  if (!client.user) return;
+
+  const rest = new REST().setToken(config.DISCORD_TOKEN);
+  try {
+    logger.info('Started refreshing application (/) commands.');
+    const body = Array.from(commands.values()).map(command => command.data.toJSON());
+    await rest.put(Routes.applicationCommands(client.user.id), { body });
+    logger.info('Successfully reloaded application (/) commands.');
+  } catch (error) {
+    logger.error('Failed to reload application (/) commands:', error);
+  }
+}
 
 export default {
   name: 'ready',
@@ -30,18 +44,3 @@ export default {
     }
   }
 };
-
-async function registerCommands(client: Client) {
-  if (!client.user) return;
-
-  const rest = new REST().setToken(Config.DISCORD_TOKEN);
-  try {
-    logger.info('Started refreshing application (/) commands.');
-    const body = Array.from(commands.values()).map(command => command.data.toJSON());
-
-    await rest.put(Routes.applicationCommands(client.user.id), { body });
-    logger.info('Successfully reloaded application (/) commands.');
-  } catch (error) {
-    logger.error('Failed to reload application (/) commands:', error);
-  }
-}

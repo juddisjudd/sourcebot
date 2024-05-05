@@ -1,12 +1,12 @@
 import { GuildMember, TextChannel } from 'discord.js';
-import { MEMBER_ACTIVITY_CHANNEL } from '../config';
+import config from '../config';
 import logger from '../utils/logger';
 
 export default {
   name: 'guildMemberAdd',
   once: false,
   execute: async (member: GuildMember) => {
-    const channel = member.guild.channels.cache.get(MEMBER_ACTIVITY_CHANNEL as string) as TextChannel;
+    const channel = member.guild.channels.cache.get(config.MEMBER_ACTIVITY_CHANNEL as string) as TextChannel;
     if (!(channel instanceof TextChannel)) {
       logger.error('The specified channel is not a text channel.');
       return;
