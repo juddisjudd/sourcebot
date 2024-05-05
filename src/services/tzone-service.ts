@@ -6,7 +6,7 @@ import logger from '../utils/logger';
 
 const zonesPath = path.join(__dirname, '../data/games/d2r/zones.json');
 const historyPath = path.join(__dirname, '../data/games/d2r/history.json');
-const zones = require(zonesPath) as Record<string, any>; // Adjust this type as necessary
+const zones = require(zonesPath) as Record<string, any>;
 const channelID = '1235719234525593624';
 
 interface ZoneData {
