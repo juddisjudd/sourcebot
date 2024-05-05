@@ -3,10 +3,12 @@ import logger from '../utils/logger';
 import { logToChannel } from '../utils/logToChannel';
 import commands from '../handlers/commandHandler';
 import Config from '../config';
-import { setupContinuousCheck, postUpdatesToChannel, fetchDataFromAPI } from '../services/tzone-service';  
+import { setupContinuousCheck, postUpdatesToChannel, fetchDataFromAPI } from '../services/tzone-service';
 
-export function onReady(client: Client) {
-  client.once('ready', async () => {
+export default {
+  name: 'ready',
+  once: true,
+  async execute(client: Client) {
     logger.info(`Ready! Logged in as ${client.user?.tag}`);
 
     client.user?.setPresence({
@@ -26,8 +28,8 @@ export function onReady(client: Client) {
     } catch (error) {
       logger.error('Error fetching initial data:', error);
     }
-  });
-}
+  }
+};
 
 async function registerCommands(client: Client) {
   if (!client.user) return;

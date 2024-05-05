@@ -7,13 +7,17 @@ import type {
 import commands from '../handlers/commandHandler';
 import logger from '../utils/logger';
 
-export const onInteraction = async (interaction: Interaction) => {
-  if (interaction.isChatInputCommand()) {
-    await handleCommandInteraction(interaction as ChatInputCommandInteraction);
-  } else if (interaction.isButton()) {
-    await handleButtonInteraction(interaction as ButtonInteraction);
-  } else if (interaction.isStringSelectMenu()) {
-    await handleSelectMenuInteraction(interaction as StringSelectMenuInteraction);
+export default {
+  name: 'interactionCreate',
+  once: false,
+  execute: async (interaction: Interaction) => {
+    if (interaction.isChatInputCommand()) {
+      await handleCommandInteraction(interaction as ChatInputCommandInteraction);
+    } else if (interaction.isButton()) {
+      await handleButtonInteraction(interaction as ButtonInteraction);
+    } else if (interaction.isStringSelectMenu()) {
+      await handleSelectMenuInteraction(interaction as StringSelectMenuInteraction);
+    }
   }
 };
 
@@ -37,7 +41,7 @@ async function handleCommandInteraction(interaction: ChatInputCommandInteraction
 
 async function handleButtonInteraction(interaction: ButtonInteraction) {
   logger.info(`Button ${interaction.customId} pressed`);
-  interaction.update({ content: 'Button pressed!', components: [] });
+  await interaction.update({ content: 'Button pressed!', components: [] });
 }
 
 async function handleSelectMenuInteraction(interaction: StringSelectMenuInteraction) {

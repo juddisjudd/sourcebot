@@ -1,8 +1,6 @@
-import { Client, GatewayIntentBits, Events, AuditLogEvent } from 'discord.js';
+import { Client, GatewayIntentBits } from 'discord.js';
 import { DISCORD_TOKEN } from './config';
-import { onReady } from './events/onReady';
-import { onInteraction } from './events/onInteraction';
-import { onMemberJoin } from './events/onMemberJoin';
+import { registerEventHandlers } from './handlers/eventsHandler';
 
 import logger from './utils/logger';
 
@@ -19,10 +17,7 @@ const client = new Client({
   ],
 });
 
-onReady(client);
-
-client.on(Events.InteractionCreate, onInteraction);
-client.on(Events.GuildMemberAdd, onMemberJoin);
+registerEventHandlers(client);
 
 client.on('debug', (m) => logger.debug(m));
 client.on('warn', (m) => logger.warn(m));
