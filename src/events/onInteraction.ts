@@ -1,14 +1,19 @@
-import type { Interaction, ChatInputCommandInteraction, ButtonInteraction } from 'discord.js';
+import type {
+  Interaction,
+  ChatInputCommandInteraction,
+  ButtonInteraction,
+  StringSelectMenuInteraction,
+} from 'discord.js';
 import commands from '../handlers/commandHandler';
 import logger from '../utils/logger';
 
 export const onInteraction = async (interaction: Interaction) => {
-  if (interaction.isCommand() || interaction.isContextMenuCommand()) {
+  if (interaction.isChatInputCommand()) {
     await handleCommandInteraction(interaction as ChatInputCommandInteraction);
   } else if (interaction.isButton()) {
     await handleButtonInteraction(interaction as ButtonInteraction);
   } else if (interaction.isStringSelectMenu()) {
-    await handleSelectMenuInteraction(interaction);
+    await handleSelectMenuInteraction(interaction as StringSelectMenuInteraction);
   }
 };
 
@@ -22,19 +27,20 @@ async function handleCommandInteraction(interaction: ChatInputCommandInteraction
   try {
     if (command.run) await command.run(interaction);
   } catch (error) {
-    logger.error(`Error executing command ${interaction.commandName}:`, error);
-    await interaction.reply({ content: 'An error occurred while executing the command.', ephemeral: true });
+    logger.error(`Error executing command ${interaction.commandName} for ${interaction.user.tag}:`, error);
+    await interaction.reply({
+      content: 'An error occurred while executing the command. Please try again later.',
+      ephemeral: true,
+    });
   }
 }
 
 async function handleButtonInteraction(interaction: ButtonInteraction) {
   logger.info(`Button ${interaction.customId} pressed`);
-  await interaction.update({ content: 'Button pressed!', components: [] });
+  interaction.update({ content: 'Button pressed!', components: [] });
 }
 
-async function handleSelectMenuInteraction(interaction: Interaction) {
-  if (!interaction.isStringSelectMenu()) return;
-
+async function handleSelectMenuInteraction(interaction: StringSelectMenuInteraction) {
   logger.info(`Menu item selected: ${interaction.values.join(', ')}`);
   await interaction.update({
     content: `You selected: ${interaction.values.join(', ')}`,
