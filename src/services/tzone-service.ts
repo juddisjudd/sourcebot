@@ -9,10 +9,10 @@ const historyPath = path.join(__dirname, '../data/games/d2r/history.json');
 const zones = require(zonesPath) as Record<string, any>;
 const channelID = '1235719234525593624';
 
-interface ZoneData {
-    current: string[];
-    next: string[];
-    next_terror_time_utc?: number;
+export interface ZoneData {
+  current: string[];
+  next: string[];
+  next_terror_time_utc?: number;
 }
 
 export async function fetchTerrorZoneData(client: Client) {
