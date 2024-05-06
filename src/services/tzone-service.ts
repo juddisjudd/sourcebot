@@ -7,7 +7,7 @@ import logger from '../utils/logger';
 const zonesPath = path.join(__dirname, '../data/games/d2r/zones.json');
 const historyPath = path.join(__dirname, '../data/games/d2r/history.json');
 const zones = require(zonesPath) as Record<string, any>;
-const channelID = '1235719234525593624';
+const channelID = '1236904587848585307';
 
 export interface ZoneData {
   current: string[];
@@ -15,21 +15,40 @@ export interface ZoneData {
   next_terror_time_utc?: number;
 }
 
+let shouldContinueChecking = true;
+let isUpdating = false;
+
 export async function fetchTerrorZoneData(client: Client) {
+  if (isUpdating) {
+    logger.info("Update already in progress. Skipping fetch.");
+    return;
+  }
+
+  isUpdating = true;
   try {
     const data = await fetchDataFromAPI();
-    if (!data) return;
+    if (!data) {
+      isUpdating = false;
+      return;
+    }
 
     const lastData: ZoneData = fs.existsSync(historyPath) ? JSON.parse(fs.readFileSync(historyPath, 'utf8')) : {current: [], next: []};
 
     if (isDataDifferent(data, lastData)) {
       fs.writeFileSync(historyPath, JSON.stringify(data, null, 2));
-      postUpdatesToChannel(client, data);
+      await postUpdatesToChannel(client, data);
       logger.info('New zone data fetched and posted.');
+      shouldContinueChecking = false;
     }
-    setTimeout(() => setupContinuousCheck(client), computeMillisecondsToNextHour());
   } catch (error) {
     logger.error('Error in fetching or posting data:', error);
+  } finally {
+    isUpdating = false;
+    if (shouldContinueChecking) {
+      setTimeout(() => fetchTerrorZoneData(client), 30000); // Continue checking every 30 seconds
+    } else {
+      setTimeout(() => setupContinuousCheck(client), computeMillisecondsToNextHour()); // Schedule next check at the next hour
+    }
   }
 }
 
@@ -39,29 +58,33 @@ function computeMillisecondsToNextHour() {
 }
 
 export function setupContinuousCheck(client: Client) {
-  setTimeout(() => {
-    const intervalId = setInterval(() => fetchTerrorZoneData(client), 30000);
-    setTimeout(() => clearInterval(intervalId), 5 * 60000);  // Stop after 5 minutes
-  }, computeMillisecondsToNextHour());
+  shouldContinueChecking = true; // Reset the flag
+  fetchTerrorZoneData(client); // Start checking immediately
 }
 
 export async function fetchDataFromAPI(): Promise<ZoneData | null> {
-  try {
-    const response = await axios.get('https://www.d2emu.com/api/v1/tz', {
-      headers: {
-        'Accept-Encoding': 'gzip, deflate'
+  let retries = 3;
+  while (retries > 0) {
+    try {
+      const response = await axios.get('https://www.d2emu.com/api/v1/tz', {
+        headers: {
+          'Accept-Encoding': 'gzip, deflate'
+        }
+      });
+      if (response.status == 200 && response.data.current && Array.isArray(response.data.current)) {
+        return response.data as ZoneData;
+      } else {
+        logger.error('Invalid or missing data:', response.data);
+        retries--;
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before retrying
       }
-    });
-    if (response.status === 200 && response.data.current && Array.isArray(response.data.current)) {
-      return response.data as ZoneData;
-    } else {
-      logger.error('Invalid or missing data:', response.data);
-      return null;
+    } catch (error) {
+      logger.error('Error fetching terror zone data:', error);
+      retries--;
+      await new Promise(resolve => setTimeout(resolve, 1000));
     }
-  } catch (error) {
-    logger.error('Error fetching terror zone data:', error);
-    return null;
   }
+  return null; // Return null if all retries fail
 }
 
 function isDataDifferent(newData: ZoneData, oldData: ZoneData): boolean {
@@ -119,12 +142,12 @@ export async function postUpdatesToChannel(client: Client, data: ZoneData) {
       logger.error('The channel does not exist.');
       return;
     }
-  
+
     if (channel.type !== ChannelType.GuildNews) {
       logger.error(`The channel with ID ${channelID} is not a news channel.`);
       return;
     }
-  
+
     const embeds = buildEmbeds(data);
     try {
       const message = await channel.send({ embeds });
@@ -138,5 +161,4 @@ export async function postUpdatesToChannel(client: Client, data: ZoneData) {
     } catch (sendError) {
       logger.error(`Failed to send message to news channel: ${sendError}`, sendError);
     }
-  }
-  
+}

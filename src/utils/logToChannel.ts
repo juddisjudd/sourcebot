@@ -1,5 +1,6 @@
 import { Client, TextChannel } from 'discord.js';
 import config from '../config';
+import logger from './logger';
 
 export async function logToChannel(client: Client, message: string) {
   try {
@@ -8,6 +9,6 @@ export async function logToChannel(client: Client, message: string) {
       channel.send(message);
     }
   } catch (error) {
-    console.error('Failed to send message to channel:', error);
+    logger.error('Failed to send message to channel:', error);
   }
 }

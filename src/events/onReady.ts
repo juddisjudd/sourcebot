@@ -26,7 +26,7 @@ export default {
     logger.info(`Ready! Logged in as ${client.user?.tag}`);
 
     client.user?.setPresence({
-      activities: [{ name: 'The Universe', type: ActivityType.Watching }],
+      activities: [{ name: 'SourceBOT', type: ActivityType.Watching }],
       status: 'online',
     });
 
