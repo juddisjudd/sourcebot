@@ -69,47 +69,49 @@ function isDataDifferent(newData: ZoneData, oldData: ZoneData): boolean {
 }
 
 function buildEmbeds(data: any): EmbedBuilder[] {
-    const embeds = [];
+  const embeds = [];
 
-    const createZoneEmbed = (title: string, zoneIds: string[]): EmbedBuilder => {
-        const embed = new EmbedBuilder()
-            .setTitle(title)
-            .setColor(0x0099ff);
+  const createZoneEmbed = (title: string, zoneIds: string[], color: number): EmbedBuilder => {
+      const embed = new EmbedBuilder()
+          .setTitle(title)
+          .setColor(color);
 
-        for (const id of zoneIds) {
-            const zone = zones[id];
-            if (zone) {
-                embed.setImage(zone.image);
-                break;
-            }
-        }
+      for (const id of zoneIds) {
+          const zone = zones[id];
+          if (zone) {
+              embed.setImage(zone.image);
+              break;
+          }
+      }
 
-        if (!embed.data.image) {
-            embed.setDescription('No valid zones found.');
-        }
+      if (!embed.data.image) {
+          embed.setDescription('No valid zones found.');
+      }
 
-        return embed;
-    };
+      return embed;
+  };
 
-    if (data.current && Array.isArray(data.current)) {
-        const currentEmbed = createZoneEmbed('CURRENT ZONE:', data.current);
-        embeds.push(currentEmbed);
-    }
+  const currentColor = 0x00FF00;
+  const nextColor = 0xFF0000;
 
-    if (data.next && Array.isArray(data.next)) {
-        const nextEmbed = createZoneEmbed('NEXT ZONE:', data.next);
-        embeds.push(nextEmbed);
-    }
+  if (data.current && Array.isArray(data.current)) {
+      const currentEmbed = createZoneEmbed('CURRENT ZONE:', data.current, currentColor);
+      embeds.push(currentEmbed);
+  }
 
-    const footerEmbed = new EmbedBuilder()
-        .setColor(0x00AE86)
-        .setDescription('**BOT CREATED BY**: <@111629316164481024> | [**SHOW SUPPORT**](https://ko-fi.com/ohitsjudd) | **DATA BY:** [D2Emu](https://www.d2emu.com/api/v1/tz)');
+  if (data.next && Array.isArray(data.next)) {
+      const nextEmbed = createZoneEmbed('NEXT ZONE:', data.next, nextColor);
+      embeds.push(nextEmbed);
+  }
 
-    embeds.push(footerEmbed);
+  const footerEmbed = new EmbedBuilder()
+      .setColor(0x00AE86)
+      .setDescription('**BOT CREATED BY**: <@111629316164481024> | [**SHOW SUPPORT**](https://ko-fi.com/ohitsjudd) | **DATA BY:** [D2Emu](https://www.d2emu.com/api/v1/tz)');
 
-    return embeds;
+  embeds.push(footerEmbed);
+
+  return embeds;
 }
-
 
 export async function postUpdatesToChannel(client: Client, data: ZoneData) {
     const channel = client.channels.cache.get(channelID) as NewsChannel;
